@@ -37,18 +37,25 @@ elif wake_reason == machine.PIN_WAKE:
      
 elif wake_reason == machine.RTC_WAKE:
     print("Woke up by RTC (timer ran out)")
-    pycom.rgbled(0x007f00)
     # Load data from persistant memory 
     raw_data = rtc.memory()
-    print(raw_data)
-    if raw_data  == b'':
-        tare_sensor()
-    else: 
+    # chech if the memory is not empty
+    if raw_data  != b'':
+        # display a green light 
+        pycom.rgbled(0x007f00)
+        # convert the data from the memory 
         persistant_data = ujson.loads(raw_data)
+        # set the sensor correctly
         hx711.set_offset(persistant_data.offset)
-    value = hx711.get_value()
-    print(int(value/394.786), " g")
-    pybytes.send_signal(3, int(value/394.786))
+        # do a measure
+        value = hx711.get_value()
+        print(int(value/394.786), " g")
+        # send the information
+        pybytes.send_signal(3, int(value/394.786))
+    else:
+        # if it is empty, display a red light for 5s 
+        pycom.rgbled(0x00007f)
+        time.sleep(5)
 
 # wait several second just for development
 time.sleep(5)
