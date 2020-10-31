@@ -1,34 +1,61 @@
 import time
 import pycom
-from machine import Timer
+import machine
+from machine import Pin
 from hx711 import HX711
+import ujson
 
-class Clock:
+def tare_sensor():
+    # tare the sensor
+    hx711.tare()
+    # create a dictionnary with tare info 
+    persistant_data = {'offset': hx711.OFFSET}
+    # save it into persistant memory
+    rtc.memory(ujson.dumps(persistant_data))
 
-    def __init__(self):
-        #self.seconds = 0
-        self.__alarm = Timer.Alarm(self._seconds_handler, 60, periodic=True)
+print("Wake up")
 
-    def _seconds_handler(self, alarm):
-        pycom.rgbled(0x007f00)
-        value = hx711.get_value()
-        print(int(value/394.786), " g")
-        pybytes.send_signal(3, int(value/394.786))
-        pycom.rgbled(0x000000)
-        #self.seconds += 1
-        #print("%02d seconds have passed" % self.seconds)
-        #if self.seconds == 10:
-        #    alarm.cancel() # stop counting after 10 seconds
-
-val = 0;
-hx711 = HX711('P3','P4')
-hx711.tare()
-
+rtc = machine.RTC()
 pycom.heartbeat(False)
-print("start")
+Pin('P6', mode=Pin.IN, pull=Pin.PULL_DOWN)
 
-clock = Clock()
+# get the reason why MCU is waking up
+(wake_reason, gpio_list) = machine.wake_reason()
 
-print("after clock")
+# init the sensor
+hx711 = HX711('P3','P4')
 
+if wake_reason == machine.PWRON_WAKE:
+    print("Woke up by reset button")
+    pycom.rgbled(0x007f7f)
+elif wake_reason == machine.PIN_WAKE:
+    print("Woke up by external pin (external interrupt)")
+    pycom.rgbled(0x00007f)
+    print(*gpio_list, sep=", ")
+    # call the function to tare 
+    tare_sensor()
+     
+elif wake_reason == machine.RTC_WAKE:
+    print("Woke up by RTC (timer ran out)")
+    pycom.rgbled(0x007f00)
+    # Load data from persistant memory 
+    raw_data = rtc.memory()
+    print(raw_data)
+    if raw_data  == b'':
+        tare_sensor()
+    else: 
+        persistant_data = ujson.loads(raw_data)
+        hx711.set_offset(persistant_data.offset)
+    value = hx711.get_value()
+    print(int(value/394.786), " g")
+    pybytes.send_signal(3, int(value/394.786))
 
+# wait several second just for development
+time.sleep(5)
+
+print("Deep sleep")
+# setup the way to manually wake up. enable_pull= True disable ULP or capacitive touch wakeup
+machine.pin_sleep_wakeup(('P6',), mode=machine.WAKEUP_ANY_HIGH, enable_pull=True)
+
+# start the deepsleep for a defined duration
+machine.deepsleep(1000*60)
