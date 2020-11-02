@@ -17,6 +17,7 @@
     },
     "device_id": "390f1b65-9266-4c65-89a2-ae01e2586131",
     "network_preferences": [
+        "sigfox",
         "wifi"
     ],
     "ota_server": {

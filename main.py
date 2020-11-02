@@ -4,6 +4,32 @@ import machine
 from machine import Pin
 from hx711 import HX711
 import ujson
+from network import Sigfox
+import socket
+
+def measure():
+    value = hx711.get_value()
+    print(int(value/394.786), " g")
+    return value
+
+def sendData(data):
+    # init Sigfox for RCZ1 (Europe)
+    sigfox = Sigfox(mode=Sigfox.SIGFOX, rcz=Sigfox.RCZ1)
+
+    # create a Sigfox socket
+    s = socket.socket(socket.AF_SIGFOX, socket.SOCK_RAW)
+
+    # make the socket blocking
+    s.setblocking(True)
+
+    # configure it as uplink only
+    s.setsockopt(socket.SOL_SIGFOX, socket.SO_RX, False)
+
+    # send some bytes
+    data_in_int= int(data)
+    data_in_bytes = data_in_int.to_bytes(2,'big')
+    #s.send(bytes([data]))
+    s.send(data_in_bytes)
 
 def tare_sensor():
     # tare the sensor
@@ -46,15 +72,15 @@ elif wake_reason == machine.RTC_WAKE:
         # convert the data from the memory 
         persistant_data = ujson.loads(raw_data)
         # set the sensor correctly
-        hx711.set_offset(persistant_data.offset)
+        hx711.set_offset(persistant_data['offset'])
         # do a measure
-        value = hx711.get_value()
-        print(int(value/394.786), " g")
+        weight = measure()
         # send the information
-        pybytes.send_signal(3, int(value/394.786))
+        #pybytes.send_signal(3, int(value/394.786))
+        sendData(weight)
     else:
         # if it is empty, display a red light for 5s 
-        pycom.rgbled(0x00007f)
+        pycom.rgbled(0x7f0000)
         time.sleep(5)
 
 # wait several second just for development
@@ -65,4 +91,5 @@ print("Deep sleep")
 machine.pin_sleep_wakeup(('P6',), mode=machine.WAKEUP_ANY_HIGH, enable_pull=True)
 
 # start the deepsleep for a defined duration
-machine.deepsleep(1000*60)
+#machine.deepsleep(1000*60) # 1 min
+machine.deepsleep(1000*60*12) # 12 min
