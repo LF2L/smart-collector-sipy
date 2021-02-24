@@ -8,8 +8,8 @@ from network import Sigfox
 import socket
 
 def measure():
-    value = hx711.get_value()
-    print(int(value/394.786), " g")
+    value = hx711.get_value()/394.786
+    print("{} g".format(int(value)))
     return value
 
 def sendData(data):
@@ -26,8 +26,10 @@ def sendData(data):
     s.setsockopt(socket.SOL_SIGFOX, socket.SO_RX, False)
 
     # send some bytes
+    print("raw data: {}".format(data))
     data_in_int= int(data)
     data_in_bytes = data_in_int.to_bytes(2,'big')
+
     #s.send(bytes([data]))
     s.send(data_in_bytes)
 
@@ -75,9 +77,10 @@ elif wake_reason == machine.RTC_WAKE:
         hx711.set_offset(persistant_data['offset'])
         # do a measure
         weight = measure()
+
         # send the information
-        #pybytes.send_signal(3, int(value/394.786))
-        sendData(weight)
+        pybytes.send_signal(3, int(weight))
+        sendData(int(weight))
     else:
         # if it is empty, display a red light for 5s 
         pycom.rgbled(0x7f0000)
@@ -92,4 +95,4 @@ machine.pin_sleep_wakeup(('P6',), mode=machine.WAKEUP_ANY_HIGH, enable_pull=True
 
 # start the deepsleep for a defined duration
 #machine.deepsleep(1000*60) # 1 min
-machine.deepsleep(1000*60*12) # 12 min
+#machine.deepsleep(1000*60*12) # 12 min
