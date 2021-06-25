@@ -1,5 +1,8 @@
 {
-
+    "wifi": {
+        "ssid": "stanmeurthe-eqt",
+        "password": "lk!?$08C=6V1odKWHbN"
+    },
     "wlan_antenna": 0,
     "dump_ca": false,
     "server": "mqtt.pybytes.pycom.io",
@@ -12,8 +15,11 @@
         "band": null,
         "type": null
     },
+    "device_id": "390f1b65-9266-4c65-89a2-ae01e2586131",
     "network_preferences": [
+        "wifi",
         "sigfox"
+        
     ],
     "ota_server": {
         "port": 443,
