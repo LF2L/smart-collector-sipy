@@ -6,12 +6,21 @@ This project aims to create an open source smart collector. The objective of col
 * Measure the weight of its content
 * Measure the state of the battery
 * Send the information to sigfox backend
+* Tare weight
+
+## Working principle
+To have further hint about how the prgram of the device work, activity diagrams are available [here](doc/img/ActivityDiagrams.md).
 
 ## Hardware  
-PYCOM LOPY 4
+* [PYCOM LOPY 4](https://pycom.io/product/lopy4/)
+* [PYCOM Expansion Board 3](https://pycom.io/product/expansion-board-3-0/)
+* LiPo Battery
+* [5 Kg Load cell](https://www.gotronic.fr/art-capteur-de-force-5-kg-czl635-5-17599.htm)
+* [Analog digital converter - hx711](https://www.gotronic.fr/art-amplificateur-hx711-grove-101020712-31346.htm)
+
 
 ## Firmeware
-This devices use the PyBytes 1.20.2.r4 firmeware. However, it will not use. 
+This devices use the PyBytes 1.20.2.r4 firmeware.
 
 
 ## Documentation/ references 
