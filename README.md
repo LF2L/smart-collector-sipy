@@ -13,7 +13,7 @@ To have further hint about how the prgram of the device work, activity diagrams 
 
 ## Hardware  
 * [PYCOM LOPY 4](https://pycom.io/product/lopy4/)
-* [PYCOM Expansion Board 3](https://pycom.io/product/expansion-board-3-0/)
+* [PYCOM Expansion Board 3](https://pycom.io/product/expansion-board-3-0/) OR [Battery Management system TP4056](https://www.amazon.fr/Greluma-Interface-Chargeur-Batterie-Protection/dp/B08XWZFPRB/ref=bmx_dp_qanayhuo_5/262-1009802-0928702?pd_rd_w=CqLMz&pf_rd_p=4bc5b1b7-6c70-40d0-a70a-3ed2ca409d95&pf_rd_r=4GV6H1HBT1N7D93DD10B&pd_rd_r=d61cc57d-de6f-49c7-85b7-10e0572cf781&pd_rd_wg=zi9uJ&pd_rd_i=B08XWZFPRB&psc=1)
 * LiPo Battery
 * [5 Kg Load cell](https://www.gotronic.fr/art-capteur-de-force-5-kg-czl635-5-17599.htm)
 * [Analog digital converter - hx711](https://www.gotronic.fr/art-amplificateur-hx711-grove-101020712-31346.htm)
