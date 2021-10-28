@@ -64,7 +64,7 @@ def weight_measure(loadCellRef):
         loadCellRef.set_offset(persistant_data['offset'])
 
         # weight_measure the weight
-        weight = str(loadCellRef.get_units(10))
+        weight = loadCellRef.get_units(10)
 
         # weight_measure the battery state
         battVal = apin.voltage()
