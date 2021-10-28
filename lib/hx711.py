@@ -92,3 +92,6 @@ class HX711:
 
     def power_up(self):
         self.pSCK.value(False)
+
+    def to_string(self):
+        return "Gain: {gain} \r\n Scale: {scale} \r\n Offset: {offset}".format(gain=self.GAIN, scale= self.SCALE, offset=self.OFFSET)
