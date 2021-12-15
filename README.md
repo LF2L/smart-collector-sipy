@@ -49,3 +49,6 @@ In order to update the firmeware without the board, the pin P2 has to be connect
 ![#00007f](https://via.placeholder.com/15/00007f/000000?text=+) `#00007f` Wake up from tare button
 
 ![#FFF81B](https://via.placeholder.com/15/FFF81B/000000?text=+) `#FFF81B` Wake up from RTC time out
+
+## sources
+[MicroWebCli](https://github.com/jczic/MicroWebCli)
