@@ -10,29 +10,45 @@ from network import Sigfox, WLAN
 import socket
 import ubinascii
 
-uplink_intervalle = 1           # minutes #time between two message
+uplink_intervalle = 30           # minutes #time between two message
 calibration_factor = 43.57      # callibration factor that is specific to each load cell
 sleeping_time = 0.4             # time to wait before doing any measurement to be sure voltage is stable to have a correct measurment
-production = False              # disable print commands for on-field deployement
+production = True              # disable print commands for on-field deployement, should be false for debug 
 communicationEnabled = True     # enable/ disable communication with distant server, usefull while testing the firmware
 
 # Wifi Paramters
 WifiEnabled = True              # enable/ disable communication with distant server, usefull while testing the firmware
-apiURL = "" # URL of the API that will collect the data 
+apiURL = "http://nodered.lf2l.fr/api/smartcollector/" # URL of the API that will collect the data 
 APIuser= ""
 APIpassword = ""
-MCUid = ""              # ID that will be send through API request
-WiFi_SSID = "" 
+MCUid = "1B2A0F9"              # ID that will be send through API request
+WiFi_SSID = ""
 Wifi_pass= ''
+NB_TRYWIFI = 20
 
+def sleep():
+    wakeupPin = Pin('P23', mode=Pin.IN, pull=Pin.PULL_DOWN)
+    # setup the way to manually wake up. enable_pull= True disable ULP or capacitive touch wakeup
+    machine.pin_sleep_wakeup(
+    (wakeupPin,), mode=machine.WAKEUP_ANY_HIGH, enable_pull=True)
+
+    # start the deepsleep for a defined duration
+    machine.deepsleep(1000*60*uplink_intervalle)
 
 def sendDataWifi(weightData, batteryData):
+    _try = 0
     wlan = WLAN(mode=WLAN.STA)
 
     wlan.connect(ssid=WiFi_SSID, auth=(WLAN.WPA2, Wifi_pass))
 
     while not wlan.isconnected():  # ou timeout
         machine.idle()
+        
+        _try +=1
+        if _try >= NB_TRYWIFI:
+           print("Impossible to connect WiFi network, go to deep sleep")
+           sleep()
+
     if not production: print("WiFi connected succesfully")
 
     data_in_int = int(weightData)
@@ -56,9 +72,9 @@ def sendDataWifi(weightData, batteryData):
     response = MicroWebCli.JSONRequest(apiURL+MCUid, o=payload, auth= auth )    
 
     if(response != None):
-        print("Success {}".format(response))
+        if not production : print("Success {}".format(response))
     else:
-        print("Request failed: {}".format(response))
+         if not production : print("Request failed: {}".format(response))
     
 
 
@@ -207,10 +223,5 @@ elif wake_reason == machine.RTC_WAKE:
 
 if not production:
     print("Deep sleep")
-wakeupPin = Pin('P23', mode=Pin.IN, pull=Pin.PULL_DOWN)
-# setup the way to manually wake up. enable_pull= True disable ULP or capacitive touch wakeup
-machine.pin_sleep_wakeup(
-    (wakeupPin,), mode=machine.WAKEUP_ANY_HIGH, enable_pull=True)
 
-# start the deepsleep for a defined duration
-machine.deepsleep(1000*60*uplink_intervalle)
+sleep()
