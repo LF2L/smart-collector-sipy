@@ -1,4 +1,4 @@
-# Documentation - Activity Diagram 
+# Documentation - Activity Diagrams 
 
 ## Main Activity of the controller
 
@@ -13,6 +13,6 @@
 
 ![Send Data diagram](./img/ActivityDiagram-SendData.png) 
 
-## TareSensor
+## Tare Sensor
 
 ![Tare Sensor diagram](./img/ActivityDiagram-TareSensor.png) 

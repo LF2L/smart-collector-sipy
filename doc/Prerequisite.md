@@ -1,11 +1,4 @@
-# Prerequisite - all tools require to use Pycom microcontroller
-
-## 
-* Install VS code 
-* Install Pymakr add-on in VS Code
-![PyMakr Add-on](./img/VScode-InstallPymakr.PNG)
-
-## Uploading software on the microcontroller
+## Uploading the firmware on the microcontroller
 
 * Open VS Code 
 * Open the folder project 

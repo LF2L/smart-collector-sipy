@@ -1,12 +1,12 @@
-# Smart Collector Sigfox version 
+# Smart Collector - LoPy4 Sigfox version 
 
-This project aims to create an open source smart collector. The objective of collector is to communicate the weight of its content.
+This project aims to create an open source smart collector. The objective of the collector is to collect plastic x=waste in the perspective to valorize it into a circular enconomy. The main function of the collector is to communicate the weight of its content.
 
 ## Features of the devices 
 * Measure the weight of its content
 * Measure the state of the battery
 * Send the information to sigfox backend
-* Tare weight
+* Tare weight the empty collector before being filled
 
 ## Working principle
 To have further hint about how the prgram of the device work, activity diagrams are available [here](doc/img/ActivityDiagrams.md).
@@ -18,9 +18,14 @@ To have further hint about how the prgram of the device work, activity diagrams 
 * [5 Kg Load cell](https://www.gotronic.fr/art-capteur-de-force-5-kg-czl635-5-17599.htm)
 * [Analog digital converter - hx711](https://www.gotronic.fr/art-amplificateur-hx711-grove-101020712-31346.htm)
 
+## Software 
+* Install VS code 
+* Install Pymakr add-on in VS Code
+![PyMakr Add-on](./img/VScode-InstallPymakr.PNG)
 
 ## Firmeware
 This devices use the PyBytes 1.20.2.r4 firmeware.
+
 
 
 ## Documentation/ references 
