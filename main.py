@@ -10,18 +10,21 @@ from network import Sigfox, WLAN
 import socket
 import ubinascii
 
-uplink_intervalle = 30           # minutes #time between two message
-calibration_factor = 43.57      # callibration factor that is specific to each load cell
-sleeping_time = 0.4             # time to wait before doing any measurement to be sure voltage is stable to have a correct measurment
-production = True              # disable print commands for on-field deployement, should be false for debug 
-communicationEnabled = True     # enable/ disable communication with distant server, usefull while testing the firmware
+# Micro-controller settings
+uplink_intervalle = 30              # minutes #time between two messages
+calibration_factor = 43.57          # callibration factor that is specific to each load cell
+sleeping_time = 0.4                 # time to wait before doing any measurement to be sure voltage is stable to have a correct measurment
+production = True                   # disable print commands for on-field deployement, should be false for debug 
+communicationEnabled = True         # enable/ disable communication with distant server. usefull while testing the firmware
+MCUid = "1B2A0F9"                   # ID that will be send through API request
 
-# Wifi Paramters
-WifiEnabled = True              # enable/ disable communication with distant server, usefull while testing the firmware
-apiURL = "http://nodered.lf2l.fr/api/smartcollector/" # URL of the API that will collect the data 
+# API
+apiURL = "" # URL of the API that will collect the data 
 APIuser= ""
 APIpassword = ""
-MCUid = "1B2A0F9"              # ID that will be send through API request
+
+# Wifi Parameters
+WifiEnabled = True                  # enable/ disable the use of the WIFI connectity. Effective only if "communicationEnabled" is True. 
 WiFi_SSID = ""
 Wifi_pass= ''
 NB_TRYWIFI = 20
@@ -201,8 +204,6 @@ elif wake_reason == machine.PIN_WAKE:
     pycom.rgbled(0x00007f)
     if not production:
         print("Woke up by external pin (external interrupt)")
-    # print in log which button triggered the wakeup
-    #if not production: print(*gpio_list, sep=", ")
 
     # wait several microsec that power supply stabilize in order to do a correct tare
     time.sleep(sleeping_time)
