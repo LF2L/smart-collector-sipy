@@ -1,4 +1,4 @@
-# Smart Collector - LoPy4 Sigfox version 
+# Smart Collector - SiPy Sigfox version 
 
 This project aims to create an open source smart collector. The objective of the collector is to collect plastic x=waste in the perspective to valorize it into a circular enconomy. The main function of the collector is to communicate the weight of its content.
 
@@ -12,7 +12,8 @@ This project aims to create an open source smart collector. The objective of the
 To have further hint about how the prgram of the device work, activity diagrams are available [here](doc/img/ActivityDiagrams.md).
 
 ## Hardware  
-* [PYCOM LOPY 4](https://pycom.io/product/lopy4/)
+* [PYCOM SiPy](https://docs.pycom.io/datasheets/development/sipy/)
+* [Deep Sleep shield for SiPy](https://alepycom.gitbooks.io/pycom-documentation/content/chapter/datasheets/downloads/deepsleep-pinout.pdf)
 * [PYCOM Expansion Board 3](https://pycom.io/product/expansion-board-3-0/) OR [Battery Management system TP4056](https://www.amazon.fr/Greluma-Interface-Chargeur-Batterie-Protection/dp/B08XWZFPRB/ref=bmx_dp_qanayhuo_5/262-1009802-0928702?pd_rd_w=CqLMz&pf_rd_p=4bc5b1b7-6c70-40d0-a70a-3ed2ca409d95&pf_rd_r=4GV6H1HBT1N7D93DD10B&pd_rd_r=d61cc57d-de6f-49c7-85b7-10e0572cf781&pd_rd_wg=zi9uJ&pd_rd_i=B08XWZFPRB&psc=1)
 * LiPo Battery
 * [5 Kg Load cell](https://www.gotronic.fr/art-capteur-de-force-5-kg-czl635-5-17599.htm)
@@ -22,10 +23,6 @@ To have further hint about how the prgram of the device work, activity diagrams 
 * Install VS code 
 * Install Pymakr add-on in VS Code
 ![PyMakr Add-on](./img/VScode-InstallPymakr.PNG)
-
-## Firmeware
-This devices use the PyBytes 1.20.2.r4 firmeware.
-
 
 
 ## Documentation/ references 

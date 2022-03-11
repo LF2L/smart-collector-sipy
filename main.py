@@ -4,30 +4,30 @@ import machine
 from machine import Pin
 from hx711 import HX711
 import ujson
-from microWebCli import MicroWebCli
+
 # required for Sigfox
-from network import Sigfox, WLAN
+from network import Sigfox
 import socket
-import ubinascii
+
 
 # Micro-controller settings
-uplink_intervalle = 30              # minutes #time between two messages
+uplink_intervalle = 30             # minutes #time between two messages
 calibration_factor = 43.57          # callibration factor that is specific to each load cell
 sleeping_time = 0.4                 # time to wait before doing any measurement to be sure voltage is stable to have a correct measurment
 production = True                   # disable print commands for on-field deployement, should be false for debug 
 communicationEnabled = True         # enable/ disable communication with distant server. usefull while testing the firmware
-MCUid = "1B2A0F9"                   # ID that will be send through API request
+# MCUid = "1B2A66F"                   # ID that will be send through API request
 
 # API
-apiURL = "" # URL of the API that will collect the data 
-APIuser= ""
-APIpassword = ""
+# apiURL = "https://nodered.lf2l.fr/api/smartcollector/" # URL of the API that will collect the data 
+# APIuser= "user"
+# APIpassword = "SuperPassword"
 
 # Wifi Parameters
-WifiEnabled = True                  # enable/ disable the use of the WIFI connectity. Effective only if "communicationEnabled" is True. 
-WiFi_SSID = ""
-Wifi_pass= ''
-NB_TRYWIFI = 20
+# WifiEnabled = False                  # enable/ disable the use of the WIFI connectity. Effective only if "communicationEnabled" is True. 
+# WiFi_SSID = "WIFI-OCTROI"
+# Wifi_pass= '@OK3Nancy'
+# NB_TRYWIFI = 20
 
 def sleep():
     wakeupPin = Pin('P23', mode=Pin.IN, pull=Pin.PULL_DOWN)
@@ -38,46 +38,46 @@ def sleep():
     # start the deepsleep for a defined duration
     machine.deepsleep(1000*60*uplink_intervalle)
 
-def sendDataWifi(weightData, batteryData):
-    _try = 0
-    wlan = WLAN(mode=WLAN.STA)
+# def sendDataWifi(weightData, batteryData):
+#     _try = 0
+#     wlan = WLAN(mode=WLAN.STA)
 
-    wlan.connect(ssid=WiFi_SSID, auth=(WLAN.WPA2, Wifi_pass))
+#     wlan.connect(ssid=WiFi_SSID, auth=(WLAN.WPA2, Wifi_pass))
 
-    while not wlan.isconnected():  # ou timeout
-        machine.idle()
+#     while not wlan.isconnected():  # ou timeout
+#         machine.idle()
         
-        _try +=1
-        if _try >= NB_TRYWIFI:
-           print("Impossible to connect WiFi network, go to deep sleep")
-           sleep()
+#         _try +=1
+#         if _try >= NB_TRYWIFI:
+#            print("Impossible to connect WiFi network, go to deep sleep")
+#            sleep()
 
-    if not production: print("WiFi connected succesfully")
+#     if not production: print("WiFi connected succesfully")
 
-    data_in_int = int(weightData)
-    data_in_bytes = data_in_int.to_bytes(2, 'big')
-    weight_hex = ubinascii.hexlify(data_in_bytes)
+#     data_in_int = int(weightData)
+#     data_in_bytes = data_in_int.to_bytes(2, 'big')
+#     weight_hex = ubinascii.hexlify(data_in_bytes)
 
-    # convert battery data
-    batt_data_in_int = int(batteryData)
-    batt_data_in_bytes = batt_data_in_int.to_bytes(2, 'big')
-    batt_hex = ubinascii.hexlify(batt_data_in_bytes)
+#     # convert battery data
+#     batt_data_in_int = int(batteryData)
+#     batt_data_in_bytes = batt_data_in_int.to_bytes(2, 'big')
+#     batt_hex = ubinascii.hexlify(batt_data_in_bytes)
 
-    payload = {
-        "device": MCUid,
-        "payload": weight_hex + batt_hex
-    }
+#     payload = {
+#         "device": MCUid,
+#         "payload": weight_hex + batt_hex
+#     }
 
-    print("payload: {}".format(payload))
+#     print("payload: {}".format(payload))
 
-    auth   = MicroWebCli.AuthBasic(APIuser, APIpassword)
+#     auth   = MicroWebCli.AuthBasic(APIuser, APIpassword)
     
-    response = MicroWebCli.JSONRequest(apiURL+MCUid, o=payload, auth= auth )    
+#     response = MicroWebCli.JSONRequest(apiURL+MCUid, o=payload, auth= auth )    
 
-    if(response != None):
-        if not production : print("Success {}".format(response))
-    else:
-         if not production : print("Request failed: {}".format(response))
+#     if(response != None):
+#         if not production : print("Success {}".format(response))
+#     else:
+#          if not production : print("Request failed: {}".format(response))
     
 
 
@@ -141,7 +141,7 @@ def weight_measure(loadCellRef):
             weight = 0
 
         # weight_measure the battery state
-        battVal = 0 #apin.voltage()
+        battVal = apin() * 0.3256 # this correction factor depends on the resistance of the voltage divider bridge on the expansion board 
         if not production:
             print("weight: {} g".format(weight))
             print("battery: {} v".format(battVal))
@@ -153,10 +153,10 @@ def weight_measure(loadCellRef):
             print("Battery Data: {} ".format(batt_data_in_bytes))
 
         # call the function to send data
-        if communicationEnabled and not WifiEnabled:
+        if communicationEnabled :
             sendDataSigfox(int(weight), battVal)
-        elif communicationEnabled and WifiEnabled:
-            sendDataWifi(int(weight), battVal)
+        # elif communicationEnabled and WifiEnabled:
+        #     sendDataWifi(int(weight), battVal)
 
         pycom.rgbled(0x000000)  # black light
 
