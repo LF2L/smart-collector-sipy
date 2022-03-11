@@ -1,3 +1,4 @@
+from pickle import TRUE
 import time
 import pycom
 import machine
@@ -11,6 +12,7 @@ import socket
 
 
 # Micro-controller settings
+calibration = TRUE
 uplink_intervalle = 30             # minutes #time between two messages
 calibration_factor = 43.57          # callibration factor that is specific to each load cell
 sleeping_time = 0.4                 # time to wait before doing any measurement to be sure voltage is stable to have a correct measurment
@@ -169,60 +171,108 @@ def weight_measure(loadCellRef):
 
 ##############  MAIN #############
 # start = time.ticks_us()
-if not production:
-    print("Wake up")
-# disable LED blinking
-pycom.heartbeat(False)
-
-# Initialize RTC
-rtc = machine.RTC()
-
-# Initialize ADC
-adc = machine.ADC()
-
-# Affect the pin
-apin = adc.channel(pin='P16')
-
-# init the sensor
-loadCell = HX711('P3', 'P4')
-# time.sleep(sleeping_time)
-loadCell.set_scale(calibration_factor)
-
-# get the reason why MCU is waking up
-(wake_reason, gpio_list) = machine.wake_reason()
-
-# MCU woke up through the reset button on the Lopy4 board
-if wake_reason == machine.PWRON_WAKE:
-    pycom.rgbled(0x007f7f)
+if not calibration:  
     if not production:
-        print("Woke up by reset button")
-    time.sleep(sleeping_time)
-    weight_measure(loadCell)
+        print("Wake up")
+    # disable LED blinking
+    pycom.heartbeat(False)
 
-# MCU woke up through the external tare button
-elif wake_reason == machine.PIN_WAKE:
-    pycom.rgbled(0x00007f)
+    # Initialize RTC
+    rtc = machine.RTC()
+
+    # Initialize ADC
+    adc = machine.ADC()
+
+    # Affect the pin
+    apin = adc.channel(pin='P16')
+
+    # init the sensor
+    loadCell = HX711('P3', 'P4')
+    # time.sleep(sleeping_time)
+    loadCell.set_scale(calibration_factor)
+
+    # get the reason why MCU is waking up
+    (wake_reason, gpio_list) = machine.wake_reason()
+
+    # MCU woke up through the reset button on the Lopy4 board
+    if wake_reason == machine.PWRON_WAKE:
+        pycom.rgbled(0x007f7f)
+        if not production:
+            print("Woke up by reset button")
+        time.sleep(sleeping_time)
+        weight_measure(loadCell)
+
+    # MCU woke up through the external tare button
+    elif wake_reason == machine.PIN_WAKE:
+        pycom.rgbled(0x00007f)
+        if not production:
+            print("Woke up by external pin (external interrupt)")
+
+        # wait several microsec that power supply stabilize in order to do a correct tare
+        time.sleep(sleeping_time)
+
+        # call the function to tare
+        tare_sensor(loadCell)
+        weight_measure(loadCell)
+
+    elif wake_reason == machine.RTC_WAKE:
+        pycom.rgbled(0xFFF81B)
+        if not production:
+            print("Woke up by RTC (timer ran out)")
+
+        # wait several microsec that power supply stabilize in order to do correct measure
+        time.sleep(sleeping_time)
+
+        weight_measure(loadCell)
+
     if not production:
-        print("Woke up by external pin (external interrupt)")
+        print("Deep sleep")
 
-    # wait several microsec that power supply stabilize in order to do a correct tare
-    time.sleep(sleeping_time)
+    sleep()
 
-    # call the function to tare
-    tare_sensor(loadCell)
-    weight_measure(loadCell)
+else:
+    continueCalib = True
 
-elif wake_reason == machine.RTC_WAKE:
-    pycom.rgbled(0xFFF81B)
-    if not production:
-        print("Woke up by RTC (timer ran out)")
+    loadcell = HX711('P3','P4') # DOUT , SCK
+    loadcell.set_scale(calibration_factor)
 
-    # wait several microsec that power supply stabilize in order to do correct measure
-    time.sleep(sleeping_time)
+    time.sleep(0.5)
+    loadcell.tare(10)
 
-    weight_measure(loadCell)
+    startProcedure = input('Put a weight on the sensor. Ready to start? (y or n)')
 
-if not production:
-    print("Deep sleep")
+    if(startProcedure == "y" or startProcedure == "Y"):
 
-sleep()
+        while continueCalib:
+            loadcell.set_scale(calibration_factor) #Adjust to this calibration factor
+            #print("Reading: "+ str(hx711.read_average()) + "g")
+            print("OFFSET: " + str(loadcell.OFFSET) )
+            print("Reading: " + str(loadcell.get_units(10)) + "g") #Change this to g and re-adjust the calibration factor if you follow SI units like a sane person
+            print("calibration_factor: "+ str(calibration_factor))
+            print()
+
+
+
+            temp = input("Adjust the calibration factor (a :+0.1, q:-0.1, z:+1, s:-1, e:+10, d:-10, r:+100, f:-100, t: tare, y: +0, u: quit) :  ")
+            if(temp == '+' or temp == 'a') : calibration_factor += 0.1
+            elif(temp == '-' or temp == 'q'): calibration_factor -= 0.1
+            elif(temp == 'z') : calibration_factor += 1  
+            elif(temp == 's'): calibration_factor -= 1  
+            elif(temp == 'e'): calibration_factor += 10  
+            elif(temp == 'd'): calibration_factor -= 10
+            elif(temp == 'r'): calibration_factor += 100  
+            elif(temp == 'f'): calibration_factor -= 100  
+            elif(temp == 't'): loadcell.tare()  #Reset the scale to zero
+            elif(temp == 'y'): calibration_factor +=0
+            elif(temp == 'u'): continueCalib =False
+
+
+        print("---- End of calibration ----")
+        
+        print("Reading: "+ str(loadcell.get_units(10)) + "g")
+        #print("Reading: "+ str(loadcell.read_average()) + "Kg")
+        print("Calibration_factor: "+ str(calibration_factor))
+        print()
+
+    elif(startProcedure == "N" or startProcedure == "n"):
+        print("---- Calibration not started----")
