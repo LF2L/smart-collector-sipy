@@ -1,4 +1,3 @@
-from pickle import TRUE
 import time
 import pycom
 import machine
@@ -12,7 +11,7 @@ import socket
 
 
 # Micro-controller settings
-calibration = TRUE
+calibration = True
 uplink_intervalle = 30             # minutes #time between two messages
 calibration_factor = 43.57          # callibration factor that is specific to each load cell
 sleeping_time = 0.4                 # time to wait before doing any measurement to be sure voltage is stable to have a correct measurment
